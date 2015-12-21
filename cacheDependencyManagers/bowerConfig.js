@@ -5,6 +5,7 @@ var shell = require('shelljs');
 var fs = require('fs');
 var md5 = require('md5');
 var logger = require('../util/logger');
+var _ = require('lodash');
 
 var getBowerInstallDirectory = function () {
   var bowerComponentLocation = 'bower_components';
@@ -20,13 +21,20 @@ var getBowerInstallDirectory = function () {
   return bowerComponentLocation;
 };
 
+function object2SortedArray (obj) {
+    var arr = [];
+    _.keys(obj).forEach(function (key) {
+        arr.push(key + obj[key]);
+    });
+    return arr.sort();
+}
 
 function getFileHash(filePath) {
   var json = JSON.parse(fs.readFileSync(filePath));
   return md5(JSON.stringify({
-    dependencies: json.dependencies,
-    devDependencies: json.devDependencies,
-    overrides: json.overrides
+    dependencies: object2SortedArray(json.dependencies),
+    devDependencies: object2SortedArray(json.devDependencies),
+    overrides: object2SortedArray(json.overrides)
   }));
 };
 
