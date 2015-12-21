@@ -126,12 +126,13 @@ CacheDependencyManager.prototype.loadDependencies = function (callback) {
 
   // Get hash of dependency config file
   var hash = this.config.getFileHash(this.config.configPath);
+  var configFile = require(this.config.configPath);
   this.cacheLogInfo('hash of ' + this.config.configPath + ': ' + hash);
   // cachePath is absolute path to where local cache of dependencies is located
-  var cacheDirectory = path.resolve(this.config.cacheDirectory, this.config.cliName, this.config.getCliVersion());
+  var cacheDirectory = path.resolve(this.config.cacheDirectory, this.config.cliName, configFile.name, this.config.getCliVersion());
 
   if (this.config.cliName === 'npm') {
-    cacheDirectory = path.resolve(this.config.cacheDirectory, this.config.cliName, osName().replace(/\s/g, '-'), 'node-' + this.config.getNodeVersion(), 'npm-' + this.config.getCliVersion());
+    cacheDirectory = path.resolve(this.config.cacheDirectory, this.config.cliName, configFile.name, osName().replace(/\s/g, '-'), 'node-' + this.config.getNodeVersion(), 'npm-' + this.config.getCliVersion());
   }
 
 
