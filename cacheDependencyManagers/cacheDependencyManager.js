@@ -7,7 +7,7 @@ var shell = require('shelljs');
 var which = require('which');
 var targz = require('tar.gz');
 var Decompress = require('decompress');
-
+var osName = require('os-name');
 
 function CacheDependencyManager (config) {
   this.config = config;
@@ -129,6 +129,12 @@ CacheDependencyManager.prototype.loadDependencies = function (callback) {
   this.cacheLogInfo('hash of ' + this.config.configPath + ': ' + hash);
   // cachePath is absolute path to where local cache of dependencies is located
   var cacheDirectory = path.resolve(this.config.cacheDirectory, this.config.cliName, this.config.getCliVersion());
+
+  if (this.config.cliName === 'npm') {
+    cacheDirectory = path.resolve(this.config.cacheDirectory, this.config.cliName, osName().replace(/\s/g, '-'), 'node-' + this.config.getNodeVersion(), 'npm-' + this.config.getCliVersion());
+  }
+
+
   var cachePath = path.resolve(cacheDirectory, hash + '.tar.gz');
 
   // Check if local cache of dependencies exists

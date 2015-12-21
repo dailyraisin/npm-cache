@@ -44,6 +44,9 @@ module.exports = {
   getCliVersion: function getNpmVersion () {
     return shell.exec('npm --version', {silent: true}).output.trim();
   },
+  getNodeVersion: function getNodeVersion () {
+    return shell.exec('node -v', {silent: true}).output.trim();
+  },
   configPath: getNpmConfigPath(),
   installDirectory: 'node_modules',
   installCommand: 'npm install',
