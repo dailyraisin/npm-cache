@@ -3,6 +3,12 @@ npm-cache
 
 `npm-cache` is a command line utility that caches dependencies installed via `npm`, `bower`, and `composer`.
 
+## How the DailyRaisin Fork Differs
+
+1. The package cache directory structure includes the OS name and node version (if relaying npm).
+1. The `dependencies` and `devDependencies` are sorted before calculating a hash.
+
+
 It is useful for build processes that run `[npm|bower|composer] install` every time as part of their 
 build process. Since dependencies don't change often, this often means slower build times. `npm-cache`
 helps alleviate this problem by caching previously installed dependencies on the build machine. 
