@@ -5,6 +5,7 @@ var shell = require('shelljs');
 var fs = require('fs');
 var md5 = require('md5');
 var logger = require('../util/logger');
+var _ = require('lodash');
 
 
 // Returns path to configuration file for npm. Uses
@@ -21,11 +22,20 @@ var getNpmConfigPath = function () {
   }
 };
 
+function object2SortedArray (obj) {
+    var arr = [];
+    _.keys(obj).forEach(function (key) {
+        arr.push(key + obj[key]);
+    });
+    return arr.sort();
+}
+
 function getFileHash(filePath) {
   var json = JSON.parse(fs.readFileSync(filePath));
+
   return md5(JSON.stringify({
-    dependencies: json.dependencies,
-    devDependencies: json.devDependencies
+    dependencies: object2SortedArray(json.dependencies),
+    devDependencies: object2SortedArray(json.devDependencies)
   }));
 }
 
