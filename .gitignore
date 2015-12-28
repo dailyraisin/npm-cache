@@ -1,12 +1,28 @@
-# Dependency directory
-# Deployed apps should consider commenting this line out:
-# see https://npmjs.org/doc/faq.html#Should-I-check-my-node_modules-folder-into-git
+git
 node_modules
 
 # IntelliJ Project Files
 .idea/
 npm-cache.iml
 
-
 # Tmp Directory
 tmp/
+
+# vim
+*~
+*.swp
+*.swo
+
+# OSX
+.DS_Store
+.VolumeIcon.icns
+.fseventsd
+.Trashes
+._.Trashes
+._.
+.Spotlight-V100
+Icon
+
+# windows
+Thumbs.db
+Desktop.ini

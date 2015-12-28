@@ -6,6 +6,7 @@ var path = require('path');
 var parser = require('nomnom');
 var async = require('async');
 var glob = require('glob');
+var chalk = require('chalk');
 
 var logger = require('./util/logger');
 var ParseUtils = require('./util/parseUtils');
@@ -66,11 +67,11 @@ var main = function () {
 
 // Creates cache directory if it does not exist yet
 var prepareCacheDirectory = function (cacheDirectory) {
-  logger.logInfo('using ' + cacheDirectory + ' as cache directory');
+  logger.logInfo(chalk.magenta('using ' + cacheDirectory + ' as cache directory'));
   if (! fs.existsSync(cacheDirectory)) {
     // create directory if it doesn't exist
     fs.mkdirsSync(cacheDirectory);
-    logger.logInfo('creating cache directory');
+    logger.logInfo(chalk.magenta('creating cache directory'));
   }
 };
 
@@ -84,25 +85,70 @@ var installDependencies = function (opts) {
   var managerArguments = ParseUtils.getManagerArgs();
   var managers = Object.keys(managerArguments);
 
-  async.each(
-    managers,
-    function startManager (managerName, callback) {
-      var managerConfig = require(availableManagers[managerName]);
-      managerConfig.cacheDirectory = opts.cacheDirectory;
-      managerConfig.forceRefresh = opts.forceRefresh;
-      managerConfig.installOptions = managerArguments[managerName];
-      var manager = new CacheDependencyManager(managerConfig);
-      manager.loadDependencies(callback);
-    },
-    function onInstalled (error) {
-      if (error === null) {
-        logger.logInfo('successfully installed all dependencies');
-        process.exit(0);
-      } else {
-        logger.logError('error installing dependencies');
-        process.exit(1);
+  var s3ConfigFileName = '.npm-cache.json';
+  var s3ConfigPath = path.join(process.cwd(), s3ConfigFileName);
+  var s3Config = {};
+
+  async.series([
+      function findS3Config (next) {
+          fs.access(s3ConfigPath, fs.R_OK, function fileRead (err) {
+              if (err) {
+                  logger.logInfo(s3ConfigFileName + ' not found. Local cache only.');
+                  //actually no big deal! the s3 config is not required!
+                  next(null);
+              }
+              else { //the file was found
+                  logger.logInfo(s3ConfigFileName + ' found');
+
+                  try {
+                      s3Config = require(s3ConfigPath);
+                  }
+                  catch (error) {
+                      logger.logError(error);
+                      next(error);
+                  }
+
+                  if (s3Config.accessKeyId && s3Config.secretAccessKey && s3Config.bucketName) {
+                      //everything is okay, we have the right values in the config file
+                      next(null);
+                  }
+                  else {
+                      next('.npm-cache.json requires the S3 accessKeyId, secretAccessKey, and bucketName');
+                  }
+              }
+          });
+      },
+      function eachManager (next) {
+          async.each(
+            managers,
+            function startManager (managerName, callback) {
+              var managerConfig = require(availableManagers[managerName]);
+              managerConfig.cacheDirectory = opts.cacheDirectory;
+              managerConfig.forceRefresh = opts.forceRefresh;
+              managerConfig.installOptions = managerArguments[managerName];
+              managerConfig.s3Config = s3Config;
+              var manager = new CacheDependencyManager(managerConfig);
+              manager.loadDependencies(callback);
+            },
+            function onInstalled (error) {
+              if (error === null) {
+                logger.logInfo(chalk.green('successfully installed all dependencies'));
+                next(null);
+                process.exit(0);
+              } else {
+                logger.logError(chalk.red('error installing dependencies'));
+                next(null);
+                process.exit(1);
+              }
+            }
+          );
+      }],
+      function seriesReportError (err) {
+          if (err) {
+              logger.logError(err);
+              process.exit(1);
+          }
       }
-    }
   );
 };
 
@@ -125,7 +171,7 @@ var cleanCache = function (opts) {
   cachedFiles.forEach(function (fileName) {
     fs.unlinkSync(fileName);
   });
-  logger.logInfo('cleaned ' + cachedFiles.length + ' files from cache directory');
+  logger.logInfo(chalk.green('cleaned ' + cachedFiles.length + ' files from cache directory'));
 };
 
 

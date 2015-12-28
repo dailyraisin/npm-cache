@@ -7,7 +7,15 @@ npm-cache
 
 1. The package cache directory structure includes the OS name and node version (if relaying npm).
 1. The `dependencies` and `devDependencies` are sorted before calculating a hash.
+1. Optionally use AWS S3 to share your cache. Put an `.npm-cache.json` in your project directory. E.g.:
 
+```json
+{
+  "accessKeyId": "...",
+  "secretAccessKey": "...",
+  "bucketName": "..."
+}
+```
 
 It is useful for build processes that run `[npm|bower|composer] install` every time as part of their 
 build process. Since dependencies don't change often, this often means slower build times. `npm-cache`
