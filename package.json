@@ -32,6 +32,7 @@
   },
   "homepage": "https://github.com/dailyraisin/npm-cache",
   "dependencies": {
+    "async": "^1.5.0",
     "bytes": "^2.2.0",
     "chalk": "^1.1.1",
     "cli-progress-bar": "^0.1.1",
