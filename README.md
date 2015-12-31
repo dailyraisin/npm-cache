@@ -93,7 +93,7 @@ pkgcache install --forceRefresh bower
 Clear the entire local `$HOME/.pkgcache/` directory.
 
 ```bash
-pkgcache clean	# cleans out all cached files in cache directory
+pkgcache clean
 ```
 
 ## Cache Directory Structure
