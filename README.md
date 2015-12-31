@@ -53,12 +53,71 @@ pkgcache install bower --allow-root composer --dry-run
 ```
 
 ## Examples
+
+Install npm, bower, and composer components simultaneously.
+
 ```bash
-pkgcache install	# try to install npm, bower, and composer components
-pkgcache install bower	# install only bower components
-pkgcache install bower npm	# install bower and npm components
-pkgcache install bower --allow-root composer --dry-run	# install bower with allow-root, and composer with --dry-run
-pkgcache install --cacheDirectory /home/cache/  bower 	# install components using /home/cache as cache directory
-pkgcache install --forceRefresh  bower	# force installing dependencies from package manager without cache
+pkgcache install
+```
+
+Install only bower components.
+
+```bash
+pkgcache install bower
+```
+
+Install bower and npm components.
+
+```bash
+pkgcache install bower npm
+```
+
+Install bower with `--allow-root` and composer with `--dry-run`.
+
+```bash
+pkgcache install bower --allow-root composer --dry-run
+```
+
+Install bower components using `/home/cache` as the cache directory.
+
+```bash
+pkgcache install --cacheDirectory /home/cache/ bower
+```
+
+Force refresh a bower installation.
+
+```bash
+pkgcache install --forceRefresh bower
+```
+
+Clear the entire local `$HOME/.pkgcache/` directory.
+
+```bash
 pkgcache clean	# cleans out all cached files in cache directory
+```
+
+## Cache Directory Structure
+
+An example of how the tarballs are organized.
+
+```
+~/.pkgcache/
+├── bower
+│   └── project-one
+│       └── 1.6.8
+│           └── 7fed9e4deb7eba0c6686ac5d56c5561a.tar.gz
+└── npm
+    ├── project-one
+    │   └── OS-X-Mavericks
+    │       └── node-v0.12.7
+    │           └── npm-2.11.3
+    │               └── 5ea97f7c280ad42d0eefd50d03ed120e.tar.gz
+    └── project-two
+        └── OS-X-Mavericks
+            ├── node-v0.12.7
+            │   └── npm-2.11.3
+            │       └── 38b13ac506b229325aa7207e601c11d5.tar.gz
+            └── node-v4.2.3
+                └── npm-3.5.2
+                    └── 38b13ac506b229325aa7207e601c11d5.tar.gz
 ```
