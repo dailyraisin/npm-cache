@@ -153,14 +153,12 @@ CacheDependencyManager.prototype.progress = function (loader, message) {
     }.bind(loader);
 };
 
-CacheDependencyManager.prototype.downloaderError = function (hasFile, cacheDirectory, cachePath, s3cachePath, next) {
+CacheDependencyManager.prototype.downloaderError = function (cacheDirectory, cachePath, s3cachePath, next) {
     var self = this;
     return function (err) {
         var critical = true;
 
         if (err) {
-            hasFile = false; //TODO necessary?
-
             if (/40\d/.test(err)) { //400 level errors
                 if (/404/.test(err)) {
                     critical = false;
@@ -202,15 +200,12 @@ CacheDependencyManager.prototype.uploaderError = function (next) {
     };
 };
 
-CacheDependencyManager.prototype.downloaderEnd = function (hasFile, cachePath, next) {
+CacheDependencyManager.prototype.downloaderEnd = function (cachePath, next) {
     var self = this;
     return function () {
         self.cacheLogInfo(chalk.green('done downloading from s3'));
         self.cacheLogInfo('cachePath ' + chalk.magenta(cachePath));
-
-        if (hasFile) {
-            self.startExtraction(cachePath, next);
-        }
+        self.startExtraction(cachePath, next);
     };
 };
 
@@ -251,7 +246,6 @@ CacheDependencyManager.prototype.installThenArchive = function (cacheDirectory, 
 CacheDependencyManager.prototype.loadDependencies = function (finishedLoadingDependencies) {
   var self = this;
   var error = null;
-  var hasFile = true;
 
   // Check if config file for dependency manager exists
   if (! fs.existsSync(this.config.configPath)) {
@@ -332,9 +326,9 @@ CacheDependencyManager.prototype.loadDependencies = function (finishedLoadingDep
                 Key: s3cachePath
             }
         });
-        self.downloader.on('error', self.downloaderError(hasFile, cacheDirectory, cachePath, s3cachePath, finishedLoadingDependencies));
+        self.downloader.on('error', self.downloaderError(cacheDirectory, cachePath, s3cachePath, finishedLoadingDependencies));
         self.downloader.on('progress', self.progress(self.downloader, 'Downloading from s3'));
-        self.downloader.on('end', self.downloaderEnd(hasFile, cachePath, finishedLoadingDependencies));
+        self.downloader.on('end', self.downloaderEnd(cachePath, finishedLoadingDependencies));
     }
     else { //no s3 enabled
         // Try to install dependencies using package manager
