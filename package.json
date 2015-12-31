@@ -1,7 +1,7 @@
 {
-  "name": "npm-cache",
+  "name": "pkgcache",
   "version": "0.5.0",
-  "description": "cache dependency manager installs to local machine",
+  "description": "cache dependency manager for npm, bower, and composer",
   "main": "index.js",
   "repository": {
     "type": "git",
