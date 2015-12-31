@@ -31,12 +31,22 @@ function object2SortedArray (obj) {
 }
 
 function getFileHash(filePath) {
-  var json = JSON.parse(fs.readFileSync(filePath));
+  var json = JSON.parse(fs.readFileSync(filePath)); //TODO refactor
   return md5(JSON.stringify({
     dependencies: object2SortedArray(json.dependencies),
     devDependencies: object2SortedArray(json.devDependencies),
     overrides: object2SortedArray(json.overrides)
   }));
+}
+
+function getDefinition(filePath) {
+  var json = JSON.parse(fs.readFileSync(filePath)); //TODO refactor
+
+  return {
+    dependencies: json.dependencies,
+    devDependencies: json.devDependencies,
+    overrides: json.overrides
+  };
 }
 
 module.exports = {
@@ -47,5 +57,6 @@ module.exports = {
   configPath: path.resolve(process.cwd(), 'bower.json'),
   installDirectory: getBowerInstallDirectory(),
   installCommand: 'bower install',
-  getFileHash: getFileHash
+  getFileHash: getFileHash,
+  getDefinition: getDefinition
 };

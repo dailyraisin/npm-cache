@@ -50,7 +50,16 @@ function getFileHash(filePath) {
     packagesDev: json['require-dev'],
     repos: json.repositories
   }));
-};
+}
+
+function getDefinition(filePath) {
+  var json = JSON.parse(fs.readFileSync(filePath));
+  return {
+    packages: json.require,
+    packagesDev: json['require-dev'],
+    repos: json.repositories
+  };
+}
 
 module.exports = {
   cliName: 'composer',
@@ -58,5 +67,6 @@ module.exports = {
   configPath: composerFilePath,
   installDirectory: getComposerInstallDirectory(),
   installCommand: 'composer install',
-  getFileHash: getFileHash
+  getFileHash: getFileHash,
+  getDefinition: getDefinition
 };

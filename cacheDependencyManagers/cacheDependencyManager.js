@@ -12,11 +12,13 @@ var chalk = require('chalk');
 var bytes = require('bytes');
 var s3 = require('s3');
 var ProgressBar = require('cli-progress-bar');
+var moment = require('moment');
 
 function CacheDependencyManager (config) {
     this.config = config;
     this.client = null;
     this.bar = new ProgressBar();
+    this.meta = {};
 
     //stub uploader and downloader out to define the functions
     this.uploader = {
@@ -52,7 +54,6 @@ CacheDependencyManager.prototype.cacheLogError = function (error) {
   logger.logError('[' + this.config.cliName + '] ' + error);
 };
 
-
 CacheDependencyManager.prototype.installDependencies = function () {
   var error = null;
   var installCommand = this.config.installCommand + ' ' + this.config.installOptions;
@@ -67,26 +68,42 @@ CacheDependencyManager.prototype.installDependencies = function () {
   return error;
 };
 
+CacheDependencyManager.prototype.writeMetaFile = function (cachePath, next) {
+    var metaPath = cachePath.replace(/\.tar\.gz$/, '.json');
+    this.cacheLogInfo(metaPath);
+    fs.writeFile(metaPath, this.meta, 'utf8', next);
+};
+
 CacheDependencyManager.prototype.startArchiveDependencies = function (cacheDirectory, cachePath, s3cachePath, next) {
     var self = this;
     self.archiveDependencies(cacheDirectory, cachePath, function onArchived (archiveError) {
-        if (self.s3Enabled()) {
-            logger.logInfo('s3 enabled, I will upload the archive');
-
-            self.uploader = self.client.uploadFile({
-                localFile: cachePath,
-                s3Params: {
-                    Bucket: self.config.s3Config.bucketName,
-                    Key: s3cachePath
-                }
-            });
-            self.uploader.on('error', self.uploaderError(next));
-            self.uploader.on('progress', self.progress(self.uploader, 'Uploading to s3'));
-            self.uploader.on('end', self.uploaderEnd(s3cachePath, next));
-        }
-        else {
+        if (archiveError) {
             next(archiveError);
         }
+
+        self.writeMetaFile(cachePath, function writeFile (err) {
+            if (err) {
+                next(err);
+            }
+            else if (self.s3Enabled()) {
+                logger.logInfo('s3 enabled, I will upload the archive');
+
+                self.uploader = self.client.uploadFile({
+                    localFile: cachePath,
+                    s3Params: {
+                        Bucket: self.config.s3Config.bucketName,
+                        Key: s3cachePath
+                    }
+                });
+
+                self.uploader.on('error', self.uploaderError(next));
+                self.uploader.on('progress', self.progress(self.uploader, 'Uploading to s3'));
+                self.uploader.on('end', self.uploaderEnd(s3cachePath, next));
+            }
+            else {
+                next(null);
+            }
+        });
     });
 };
 
@@ -122,11 +139,14 @@ CacheDependencyManager.prototype.archiveDependencies = function (cacheDirectory,
 CacheDependencyManager.prototype.extractDependencies = function (cachePath, callback) {
   var self = this;
   var error = null;
+  self.cacheSize = bytes(fs.statSync(cachePath).size);
+  self.meta.size = self.cacheSize;
   var installDirectory = getAbsolutePath(this.config.installDirectory);
   this.cacheLogInfo('clearing installed dependencies at ' + installDirectory);
   fs.removeSync(installDirectory);
   this.cacheLogInfo('...cleared');
   this.cacheLogInfo('extracting dependencies from ' + chalk.magenta(cachePath));
+  this.cacheLogInfo('size ' + chalk.magenta(self.cacheSize));
 
   new Decompress()
     .src(cachePath)
@@ -205,6 +225,7 @@ CacheDependencyManager.prototype.downloaderEnd = function (cachePath, next) {
     return function () {
         self.cacheLogInfo(chalk.green('done downloading from s3'));
         self.cacheLogInfo('cachePath ' + chalk.magenta(cachePath));
+        self.meta.origin = 's3';
         self.startExtraction(cachePath, next);
     };
 };
@@ -269,15 +290,24 @@ CacheDependencyManager.prototype.loadDependencies = function (finishedLoadingDep
 
   // Get hash of dependency config file
   var hash = this.config.getFileHash(this.config.configPath);
+  var definition = this.config.getDefinition(this.config.configPath);
   var configFile = require(this.config.configPath);
   this.cacheLogInfo('hash of ' + this.config.configPath + ': ' + chalk.magenta(hash));
-  // cachePath is absolute path to where local cache of dependencies is located
   var cacheDirectory = path.resolve(
         this.config.cacheDirectory,
         this.config.cliName,
         configFile.name,
         this.config.getCliVersion()
   );
+
+  self.meta = {
+    packageVersion: configFile.version,
+    hash: hash,
+    origin: 'internet', //if downloaded from s3, then set to 's3'
+    date: moment().format(),
+    size: 0, //to be set upon extraction
+    definition: definition
+  };
 
   var s3cachePath = [
         this.config.cliName,
@@ -306,14 +336,13 @@ CacheDependencyManager.prototype.loadDependencies = function (finishedLoadingDep
     ].join('/'); //use join instead of path.resolve because the s3 paths are definitely separated with this slash
   }
 
-
+  // cachePath is absolute path to where local cache of dependencies is located
   var cachePath = path.resolve(cacheDirectory, hash + '.tar.gz');
 
 
   // Check if local cache of dependencies exists
   if (! this.config.forceRefresh && fs.existsSync(cachePath)) {
     this.cacheLogInfo('local cache exists');
-    this.cacheLogInfo('cache size ' + chalk.magenta(bytes(fs.statSync(cachePath).size)));
 
     this.startExtraction(cachePath, finishedLoadingDependencies);
   }

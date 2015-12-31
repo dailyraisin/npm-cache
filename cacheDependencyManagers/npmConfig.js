@@ -32,12 +32,21 @@ function object2SortedArray (obj) {
 }
 
 function getFileHash(filePath) {
-  var json = JSON.parse(fs.readFileSync(filePath));
+  var json = JSON.parse(fs.readFileSync(filePath)); //TODO refactor
 
   return md5(JSON.stringify({
     dependencies: object2SortedArray(json.dependencies),
     devDependencies: object2SortedArray(json.devDependencies)
   }));
+}
+
+function getDefinition(filePath) {
+  var json = JSON.parse(fs.readFileSync(filePath)); //TODO refactor
+
+  return {
+    dependencies: json.dependencies,
+    devDependencies: json.devDependencies
+  };
 }
 
 module.exports = {
@@ -51,5 +60,6 @@ module.exports = {
   configPath: getNpmConfigPath(),
   installDirectory: 'node_modules',
   installCommand: 'npm install',
-  getFileHash: getFileHash
+  getFileHash: getFileHash,
+  getDefinition: getDefinition
 };
