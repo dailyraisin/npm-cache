@@ -20,6 +20,7 @@ function CacheDependencyManager (config) {
     this.client = null;
     this.bar = new ProgressBar();
     this.meta = {};
+    this.cacheExists = false;
 
     //stub uploader and downloader out to define the functions
     this.uploader = {
@@ -374,7 +375,6 @@ CacheDependencyManager.prototype.loadDependencies = function (finishedLoadingDep
             });
         }
     });
-
 };
 
 /**
