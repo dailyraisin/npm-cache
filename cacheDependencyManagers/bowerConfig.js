@@ -21,6 +21,7 @@ var getBowerInstallDirectory = function () {
   return bowerComponentLocation;
 };
 
+//TODO refactor to util
 function object2SortedArray (obj) {
     var arr = [];
     _.keys(obj).forEach(function (key) {
@@ -36,7 +37,7 @@ function getFileHash(filePath) {
     devDependencies: object2SortedArray(json.devDependencies),
     overrides: object2SortedArray(json.overrides)
   }));
-};
+}
 
 module.exports = {
   cliName: 'bower',

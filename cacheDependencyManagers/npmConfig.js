@@ -22,6 +22,7 @@ var getNpmConfigPath = function () {
   }
 };
 
+//TODO refactor to util
 function object2SortedArray (obj) {
     var arr = [];
     _.keys(obj).forEach(function (key) {
