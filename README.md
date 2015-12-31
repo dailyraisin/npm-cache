@@ -106,22 +106,63 @@ An example of how the tarballs are organized.
 │   └── project-one
 │       └── 1.6.8
 │           └── 7fed9e4deb7eba0c6686ac5d56c5561a.tar.gz
+│           └── 7fed9e4deb7eba0c6686ac5d56c5561a.json
 └── npm
     ├── project-one
     │   └── OS-X-Mavericks
     │       └── node-v0.12.7
     │           └── npm-2.11.3
     │               └── 5ea97f7c280ad42d0eefd50d03ed120e.tar.gz
+    │               └── 5ea97f7c280ad42d0eefd50d03ed120e.json
     └── project-two
         └── OS-X-Mavericks
             ├── node-v0.12.7
             │   └── npm-2.11.3
             │       └── 38b13ac506b229325aa7207e601c11d5.tar.gz
+            │       └── 38b13ac506b229325aa7207e601c11d5.json
             └── node-v4.2.3
                 └── npm-3.5.2
                     └── 38b13ac506b229325aa7207e601c11d5.tar.gz
+                    └── 38b13ac506b229325aa7207e601c11d5.json
 ```
 
-## Managing S3 Archives
+## Managing Archives
 
-This is a manual process now. I.e. if you need to clear out a faulty tarball you must use the AWS interface.
+### Local Archives
+
+A meta file accompanies each tarball that contains the following information:
+
+- `packageVersion` is the version number from the config file
+- `hash` matches the filename hash
+- `origin` - whether the archive was created by `internet` installation or `s3`
+- `date` - when the archive was built
+- `size` - file size in human readable format
+- `definition` - the source for the hash
+
+Example:
+
+```json
+{
+  "packageVersion": "1.1.0",
+  "hash": "5d3129a53232e136103bad41da0544ac",
+  "origin": "internet",
+  "date": "2015-12-31T17:28:46-05:00",
+  "size": "2.44MB",
+  "definition": {
+    "dependencies": {
+      "moment": "^2.10.3",
+      "serve-static": "^1.10.0",
+      "express": "4.13.0"
+    },
+    "devDependencies": {
+      "gulp": "^3.9.0",
+      "del": "^2.2.0"
+    }
+  }
+}
+```
+
+
+### S3 Archives
+
+S3 archives are managed manually. I.e. if you need to clear out a faulty tarball you must use the AWS interface.
