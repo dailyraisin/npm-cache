@@ -7,20 +7,6 @@ pkgcache
 npm install -g pkgcache
 ```
 
-## How `pkgcache` Differs from the Original `npm-cache`
-
-1. The package cache directory structure includes the OS name and node version (if relaying npm).
-1. The `dependencies` and `devDependencies` are sorted before calculating a hash so the order does not effect the hash.
-1. Optionally use AWS S3 to share your cache among developers and continuous intergration. Put a `.pkgcache.json` in your project directory. E.g.:
-
-```json
-{
-  "accessKeyId": "...",
-  "secretAccessKey": "...",
-  "bucketName": "..."
-}
-```
-
 ## Summary
 
 `pkgcache` can be a drop-in replacement for any build script that runs `[npm|bower|composer] install`. 
@@ -38,6 +24,20 @@ helps alleviate this problem by caching previously installed dependencies on the
 1. If S3 is enabled via `.pkgcache.json`, the tarball is uploaded. 
 1. The next time `pkgcache` runs and sees the same config file [hash calculation], it will find the tarball in the cache directory and untar the dependencies in the current working directory.
 1. If it’s unavailable in `$HOME/.pkgcache/` and S3 is enabled, attempt to download it from S3.
+
+## How `pkgcache` Differs from the Original `npm-cache`
+
+1. The package cache directory structure includes the OS name and node version (if relaying npm).
+1. The `dependencies` and `devDependencies` are sorted before calculating a hash so the order does not effect the hash.
+1. Optionally use AWS S3 to share your cache among developers and continuous intergration. Put a `.pkgcache.json` in your project directory. E.g.:
+
+```json
+{
+  "accessKeyId": "...",
+  "secretAccessKey": "...",
+  "bucketName": "..."
+}
+```
 
 ## Usage
 ```bash
@@ -103,21 +103,25 @@ An example of how the tarballs are organized.
 ```
 ~/.pkgcache/
 ├── bower
-│   └── project-one
-│       └── 1.6.8
-│           └── 7fed9e4deb7eba0c6686ac5d56c5561a.tar.gz
+│   └── project-one
+│       └── 1.6.8
+│           └── 7fed9e4deb7eba0c6686ac5d56c5561a.tar.gz
 └── npm
     ├── project-one
-    │   └── OS-X-Mavericks
-    │       └── node-v0.12.7
-    │           └── npm-2.11.3
-    │               └── 5ea97f7c280ad42d0eefd50d03ed120e.tar.gz
+    │   └── OS-X-Mavericks
+    │       └── node-v0.12.7
+    │           └── npm-2.11.3
+    │               └── 5ea97f7c280ad42d0eefd50d03ed120e.tar.gz
     └── project-two
         └── OS-X-Mavericks
             ├── node-v0.12.7
-            │   └── npm-2.11.3
-            │       └── 38b13ac506b229325aa7207e601c11d5.tar.gz
+            │   └── npm-2.11.3
+            │       └── 38b13ac506b229325aa7207e601c11d5.tar.gz
             └── node-v4.2.3
                 └── npm-3.5.2
                     └── 38b13ac506b229325aa7207e601c11d5.tar.gz
 ```
+
+## Managing S3 Archives
+
+This is a manual process now. I.e. if you need to clear out a faulty tarball you must use the AWS interface.
