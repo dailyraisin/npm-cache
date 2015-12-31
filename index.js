@@ -51,13 +51,13 @@ var main = function () {
 
   var examples = [
     'Examples:',
-    '\tnpm-cache install\t# try to install npm, bower, and composer components',
-    '\tnpm-cache install bower\t# install only bower components',
-    '\tnpm-cache install bower npm\t# install bower and npm components',
-    '\tnpm-cache install bower --allow-root composer --dry-run\t# install bower with allow-root, and composer with --dry-run',
-    '\tnpm-cache install --cacheDirectory /home/cache/ bower \t# install components using /home/cache as cache directory',
-    '\tnpm-cache install --forceRefresh  bower\t# force installing dependencies from package manager without cache',
-    '\tnpm-cache clean\t# cleans out all cached files in cache directory'
+    '\tpkgcache install\t# try to install npm, bower, and composer components',
+    '\tpkgcache install bower\t# install only bower components',
+    '\tpkgcache install bower npm\t# install bower and npm components',
+    '\tpkgcache install bower --allow-root composer --dry-run\t# install bower with allow-root, and composer with --dry-run',
+    '\tpkgcache install --cacheDirectory /home/cache/ bower \t# install components using /home/cache as cache directory',
+    '\tpkgcache install --forceRefresh  bower\t# force installing dependencies from package manager without cache',
+    '\tpkgcache clean\t# cleans out all cached files in cache directory'
   ];
   parser.help(examples.join('\n'));
 

@@ -1,6 +1,6 @@
 {
   "name": "pkgcache",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "description": "cache dependency manager for npm, bower, and composer",
   "main": "index.js",
   "repository": {
