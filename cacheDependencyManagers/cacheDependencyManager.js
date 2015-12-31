@@ -126,6 +126,8 @@ CacheDependencyManager.prototype.archiveDependencies = function (cacheDirectory,
         self.cacheLogError(error);
       } else {
         self.cacheLogInfo('installed and archived dependencies');
+        self.meta.size = bytes(fs.statSync(cachePath).size);
+        self.cacheLogInfo('size ' + chalk.magenta(self.meta.size));
       }
       callback(error);
     }
@@ -135,14 +137,13 @@ CacheDependencyManager.prototype.archiveDependencies = function (cacheDirectory,
 CacheDependencyManager.prototype.extractDependencies = function (cachePath, callback) {
   var self = this;
   var error = null;
-  self.cacheSize = bytes(fs.statSync(cachePath).size);
-  self.meta.size = self.cacheSize;
   var installDirectory = getAbsolutePath(this.config.installDirectory);
   this.cacheLogInfo('clearing installed dependencies at ' + installDirectory);
   fs.removeSync(installDirectory);
   this.cacheLogInfo('...cleared');
   this.cacheLogInfo('extracting dependencies from ' + chalk.magenta(cachePath));
-  this.cacheLogInfo('size ' + chalk.magenta(self.cacheSize));
+  self.meta.size = bytes(fs.statSync(cachePath).size);
+  this.cacheLogInfo('size ' + chalk.magenta(self.meta.size));
 
   new Decompress()
     .src(cachePath)
@@ -164,7 +165,6 @@ CacheDependencyManager.prototype.extractDependencies = function (cachePath, call
 CacheDependencyManager.prototype.progress = function (loader, message) {
     var self = this;
     return function () {
-        //this.cacheLogInfo(bytes(loader.progressAmount) + ' / ' + bytes(loader.progressTotal));
         self.bar.show(message + ' ' + bytes(loader.progressTotal), this.progressAmount/this.progressTotal);
     }.bind(loader);
 };
