@@ -50,6 +50,6 @@
   },
   "preferGlobal": true,
   "bin": {
-    "npm-cache": "index.js"
+    "pkgcache": "index.js"
   }
 }
