@@ -12,7 +12,7 @@ var logger = require('./util/logger');
 var ParseUtils = require('./util/parseUtils');
 var CacheDependencyManager = require('./cacheDependencyManagers/cacheDependencyManager');
 
-// Main entry point for npm-cache
+// Main entry point for pkgcache
 var main = function () {
   // Parse CLI Args
   parser.command('install')
@@ -75,7 +75,7 @@ var prepareCacheDirectory = function (cacheDirectory) {
   }
 };
 
-// npm-cache command handlers
+// pkgcache command handlers
 
 // main method for installing specified dependencies
 var installDependencies = function (opts) {
@@ -85,7 +85,7 @@ var installDependencies = function (opts) {
   var managerArguments = ParseUtils.getManagerArgs();
   var managers = Object.keys(managerArguments);
 
-  var s3ConfigFileName = '.npm-cache.json';
+  var s3ConfigFileName = '.pkgcache.json';
   var s3ConfigPath = path.join(process.cwd(), s3ConfigFileName);
   var s3Config = {};
 
@@ -113,7 +113,7 @@ var installDependencies = function (opts) {
                       next(null);
                   }
                   else {
-                      next('.npm-cache.json requires the S3 accessKeyId, secretAccessKey, and bucketName');
+                      next('.pkgcache.json requires the S3 accessKeyId, secretAccessKey, and bucketName');
                   }
               }
           });
@@ -159,7 +159,7 @@ var cleanCache = function (opts) {
   // Get all *.tar.gz files recursively in cache directory
   var candidateFileNames = glob.sync(opts.cacheDirectory + '/**/*.tar.gz');
 
-  // Filter out unlikely npm-cached files (non-md5 file names)
+  // Filter out unlikely pkgcached files (non-md5 file names)
   var md5Regexp = /\/[0-9a-f]{32}\.tar\.gz/i;
   var cachedFiles = candidateFileNames.filter(
     function isCachedFile (fileName) {

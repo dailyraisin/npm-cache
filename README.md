@@ -7,7 +7,7 @@ pkgcache
 
 1. The package cache directory structure includes the OS name and node version (if relaying npm).
 1. The `dependencies` and `devDependencies` are sorted before calculating a hash.
-1. Optionally use AWS S3 to share your cache. Put an `.npm-cache.json` in your project directory. E.g.:
+1. Optionally use AWS S3 to share your cache. Put an `.pkgcache.json` in your project directory. E.g.:
 
 ```json
 {
