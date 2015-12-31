@@ -113,7 +113,7 @@ var installDependencies = function (opts) {
                       next(null);
                   }
                   else {
-                      next('.pkgcache.json requires the S3 accessKeyId, secretAccessKey, and bucketName');
+                      next(s3ConfigFileName + ' requires the S3 accessKeyId, secretAccessKey, and bucketName');
                   }
               }
           });
@@ -131,22 +131,22 @@ var installDependencies = function (opts) {
               manager.loadDependencies(callback);
             },
             function onInstalled (error) {
-              if (error === null) {
-                logger.logInfo(chalk.green('successfully installed all dependencies'));
+              if (error) {
+                next('error installing dependencies');
+              }
+              else {
                 next(null);
-                process.exit(0);
-              } else {
-                logger.logError(chalk.red('error installing dependencies'));
-                next(null);
-                process.exit(1);
               }
             }
           );
       }],
       function seriesReportError (err) {
           if (err) {
-              logger.logError(err);
+              logger.logError(chalk.red(err));
               process.exit(1);
+          }
+          else {
+              logger.logInfo(chalk.green('successfully installed all dependencies'));
           }
       }
   );
