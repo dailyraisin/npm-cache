@@ -36,6 +36,7 @@ helps alleviate this problem by caching previously installed dependencies on the
 {
   "accessKeyId": "...",
   "secretAccessKey": "...",
+  "sessionToken": "...",
   "bucketName": "..."
 }
 ```
