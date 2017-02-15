@@ -36,7 +36,8 @@ function CacheDependencyManager (config) {
         this.client = s3.createClient({
             s3Options: {
                 accessKeyId: this.config.s3Config.accessKeyId,
-                secretAccessKey: this.config.s3Config.secretAccessKey
+                secretAccessKey: this.config.s3Config.secretAccessKey,
+                sessionToken: this.config.s3Config.sessionToken
             }
         });
     }
